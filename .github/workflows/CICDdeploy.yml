@@ -27,7 +27,7 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USER }}/website:v1
       - name: deploy via ssh
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{secrets.EC2_SSH_USER}} ubuntu@${{secrets.EC2_SSH_HOST}} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ${{secrets.EC2_SSH_KEY}} ubuntu@${{secrets.EC2_SSH_HOST}} << 'EOF'
           docker pull ${{secrets.DOCKER_USER}}/website:v1
           docker stop websitecontainer || true
           docker rm websitecontainer || true
