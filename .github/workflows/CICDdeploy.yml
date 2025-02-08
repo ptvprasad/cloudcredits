@@ -32,3 +32,4 @@ jobs:
           docker stop websitecontainer || true
           docker rm websitecontainer || true
           docker run -p 8090:80 --name webcontainer ${{secrets.DOCKER_USER}}/website:v1
+          EOF
