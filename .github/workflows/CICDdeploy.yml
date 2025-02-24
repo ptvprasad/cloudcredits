@@ -46,8 +46,8 @@ jobs:
      # - name: Check Network Connectivity
       #  run: ping -c 3 ${{ secrets.EC2_SSH_HOST }}
 
-      - name: Debug SSH Connection
-        run: ssh -v -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} echo "SSH connection successful"
+      #- name: Debug SSH Connection
+        #run: ssh -v -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} echo "SSH connection successful"
 
       - name: Deploy via SSH
         run: |
