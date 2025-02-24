@@ -6,7 +6,7 @@ NC='\033[0m' # No Color
 
 echo "Running Post-Build Tests..."
 
-# Set the deployed server URL (Change EC2_IP to your actual EC2 public IP)
+# Set the deployed server URL (Updated with your actual EC2 public IP)
 SERVER_URL="http://13.127.29.232"
 
 # Test 1: Check if the web server is running (HTTP 200 OK response)
@@ -27,4 +27,3 @@ else
 fi
 
 echo -e "${GREEN}All Post-Build Tests Passed!${NC}"
-
