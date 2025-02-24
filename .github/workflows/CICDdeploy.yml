@@ -25,11 +25,19 @@ jobs:
 
       - name: Push to Docker Hub
         run: docker push ${{ secrets.DOCKER_USER }}/website:v1
-      - name: deploy via ssh
+      - name: Create SSH Key File
+       run: |
+          printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+      - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{secrets.EC2_SSH_KEY}} ubuntu@${{secrets.EC2_SSH_HOST}} << 'EOF'
-          docker pull ${{secrets.DOCKER_USER}}/website:v1
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} << 'EOF'
+          docker pull ${{ secrets.DOCKER_USER }}/website:v1
           docker stop websitecontainer || true
           docker rm websitecontainer || true
-          docker run -p 8090:80 --name webcontainer ${{secrets.DOCKER_USER}}/website:v1
+          docker run -p 8090:80 --name webcontainer ${{ secrets.DOCKER_USER }}/website:v1
           EOF
+
+      - name: Remove SSH Key
+        run: rm -f ec2_key.pem  # Securely remove the key
