@@ -22,8 +22,8 @@ else
     exit 1
 fi
 
-# Test 3: Validate basic HTML structure (checks for `<html>` and `<body>` tags)
-if grep -iq "<html>" "src/index.html" && grep -iq "<body>" "src/index.html"; then
+# Test 3: Validate basic HTML structure (handles spaces, case insensitivity)
+if grep -iq "<html" "src/index.html" && grep -iq "<body" "src/index.html"; then
     echo -e "${GREEN}[PASS] Test 3: index.html has valid HTML structure.${NC}"
 else
     echo -e "${RED}[FAIL] Test 3: index.html is missing essential tags!${NC}"
