@@ -10,19 +10,24 @@ echo "Running Post-Build Tests..."
 SERVER_URL="http://3.110.194.124"
 
 # Test 1: Check if the web server is running (HTTP 200 OK response)
-if curl -s --head --request GET $SERVER_URL | grep "200 OK" > /dev/null; then
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L $SERVER_URL)
+
+if [[ "$HTTP_STATUS" -eq 200 ]]; then
     echo -e "${GREEN}[PASS] Test 1: Web server is running and accessible.${NC}"
 else
-    echo -e "${RED}[FAIL] Test 1: Web server is not reachable!${NC}"
+    echo -e "${RED}[FAIL] Test 1: Web server is not reachable! HTTP Status: $HTTP_STATUS${NC}"
     exit 1
 fi
 
 # Test 2: Check if the page contains expected text
 EXPECTED_TEXT="Welcome to My Web App"
-if curl -s $SERVER_URL | grep "$EXPECTED_TEXT" > /dev/null; then
+PAGE_CONTENT=$(curl -s $SERVER_URL)
+
+if echo "$PAGE_CONTENT" | grep -q "$EXPECTED_TEXT"; then
     echo -e "${GREEN}[PASS] Test 2: Page contains expected content.${NC}"
 else
     echo -e "${RED}[FAIL] Test 2: Page content is incorrect!${NC}"
+    echo "Received Content: $PAGE_CONTENT"
     exit 1
 fi
 
