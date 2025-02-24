@@ -38,16 +38,38 @@ jobs:
         #run: |
         #  ssh -v -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} echo "SSH connection successful"
 
+      name: Deploy Static Web
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Pre-Build Tests
+        run: chmod +x tests/pre_build_tests.sh && ./tests/pre_build_tests.sh
+
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_USER }}/website:v1 .
+
+      - name: Push to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USER }}/website:v1
+
       - name: Create SSH Key File
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ec2_key.pem
           chmod 600 ec2_key.pem
 
-     # - name: Check Network Connectivity
-      #  run: ping -c 3 ${{ secrets.EC2_SSH_HOST }}
-
-      #- name: Debug SSH Connection
-        #run: ssh -v -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} echo "SSH connection successful"
+      - name: Debug SSH Connection
+        run: ssh -v -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} echo "SSH connection successful"
 
       - name: Deploy via SSH
         run: |
@@ -55,8 +77,9 @@ jobs:
           docker pull ${{ secrets.DOCKER_USER }}/website:v1
           docker stop webcontainer || true
           docker rm webcontainer || true
-          docker run -p 8090:80 --name webcontainer ${{ secrets.DOCKER_USER }}/website:v1
+          docker run -p 8090:80 --name webcontainer -d ${{ secrets.DOCKER_USER }}/website:v1
           EOF
 
       - name: Remove SSH Key
         run: rm -f ec2_key.pem
+
