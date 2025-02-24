@@ -26,10 +26,10 @@ jobs:
       - name: Push to Docker Hub
         run: docker push ${{ secrets.DOCKER_USER }}/website:v1
 
-      - name: Create SSH Key File
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ec2_key.pem
-          chmod 600 ec2_key.pem
+      #- name: Create SSH Key File
+        #run: |
+        #  echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ec2_key.pem
+        #  chmod 600 ec2_key.pem
 
       - name: Check Network Connectivity
         run: ping -c 3 ${{ secrets.EC2_SSH_HOST }}
@@ -40,7 +40,7 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ secrets.EC2_SSH_HOST }} << 'EOF'
           docker pull ${{ secrets.DOCKER_USER }}/website:v1
           docker stop websitecontainer || true
           docker rm websitecontainer || true
